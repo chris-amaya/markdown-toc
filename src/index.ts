@@ -1,63 +1,30 @@
-'use strict'
+import Remarkable from 'remarkable'
+import merge from 'mixin-deep'
 
-/*!
- * markdown-toc <https://github.com/jonschlinkert/markdown-toc>
- *
- * Copyright © 2013-2017, Jon Schlinkert.
- * Released under the MIT License.
- */
+import {getTitle, slugify} from './utils'
+import pick from 'object.pick'
+import li from 'list-item'
+import querystring from 'querystring'
+import mdlink from 'markdown-link'
+import {insert} from './insert'
 
-var utils = require('./lib/utils')
-var querystring = require('querystring')
+querystring.escape = querystring.escape
 
-/**
- * expose `toc`
- */
-
-module.exports = toc
-
-/**
- * Load `generate` as a remarkable plugin and
- * expose the `toc` function.
- *
- * @param  {String} `str` String of markdown
- * @param  {Object} `options`
- * @return {String} Markdown-formatted table of contents
- */
-
-function toc(str, options) {
-  return new utils.Remarkable().use(generate(options)).render(str)
-}
-
-/**
- * Expose `insert` method
- */
-
-toc.insert = require('./lib/insert')
-
-/**
- * Generate a markdown table of contents. This is the
- * function that does all of the main work with Remarkable.
- *
- * @param {Object} `options`
- * @return {String}
- */
-
-function generate(options) {
-  var opts = utils.merge({firsth1: true, maxdepth: 6}, options)
+function generate(options: any) {
+  var opts = merge({firsth1: true, maxdepth: 6}, options)
   var stripFirst = opts.firsth1 === false
   if (typeof opts.linkify === 'undefined') opts.linkify = true
 
-  return function (md) {
-    md.renderer.render = function (tokens) {
+  return function (md: any) {
+    md.renderer.render = function (tokens: any): any {
       tokens = tokens.slice()
-      var seen = {}
+      var seen = {} as any
       var len = tokens.length,
         i = 0,
         num = 0
       var tocstart = -1
       var arr = []
-      var res = {}
+      var res = {} as any
 
       while (len--) {
         var token = tokens[i++]
@@ -97,10 +64,8 @@ function generate(options) {
           }
 
           tok.seen = opts.num = seen[val]
-          tok.slug = utils.slugify(val, opts)
-          res.json.push(
-            utils.pick(tok, ['content', 'slug', 'lvl', 'i', 'seen']),
-          )
+          tok.slug = slugify(val, opts)
+          res.json.push(pick(tok, ['content', 'slug', 'lvl', 'i', 'seen']))
           if (opts.linkify) tok = linkify(tok, opts)
           result.push(tok)
         }
@@ -118,20 +83,12 @@ function generate(options) {
   }
 }
 
-/**
- * Render markdown list bullets
- *
- * @param  {Array} `arr` Array of listitem objects
- * @param  {Object} `opts`
- * @return {String}
- */
-
-function bullets(arr, options) {
-  var opts = utils.merge({indent: '  '}, options)
+function bullets(arr: any, options: any) {
+  var opts = merge({indent: '  '}, options)
   opts.chars = opts.chars || opts.bullets || ['-', '*', '+']
   var unindent = 0
 
-  var listitem = utils.li(opts)
+  var listitem = li(opts)
   var fn = typeof opts.filter === 'function' ? opts.filter : null
 
   // Keep the first h1? This is `true` by default
@@ -160,16 +117,8 @@ function bullets(arr, options) {
   return res.join('\n')
 }
 
-/**
- * Get the highest heading level in the array, so
- * we can un-indent the proper number of levels.
- *
- * @param {Array} `arr` Array of tokens
- * @return {Number} Highest level
- */
-
-function highest(arr) {
-  var res = arr.slice().sort(function (a, b) {
+function highest(arr: any) {
+  var res = arr.slice().sort(function (a: any, b: any) {
     return a.lvl - b.lvl
   })
   if (res && res.length) {
@@ -182,32 +131,22 @@ function highest(arr) {
  * Turn headings into anchors
  */
 
-function linkify(tok, options) {
-  var opts = utils.merge({}, options)
+function linkify(tok: any, options: any) {
+  var opts = merge({}, options)
   if (tok && tok.content) {
     opts.num = tok.seen
     var text = titleize(tok.content, opts)
-    var slug = utils.slugify(tok.content, opts)
+    var slug = slugify(tok.content, opts)
     slug = querystring.escape(slug)
     if (opts && typeof opts.linkify === 'function') {
       return opts.linkify(tok, text, slug, opts)
     }
-    tok.content = utils.mdlink(text, '#' + slug)
+    tok.content = mdlink(text, '#' + slug)
   }
   return tok
 }
 
-/**
- * Titleize the title part of a markdown link.
- *
- * @name  options.titleize
- * @param  {String} `str` The string to titleize
- * @param  {Object} `opts` Pass a custom titleize function on `titleize`
- * @return {String}
- * @api public
- */
-
-function titleize(str, opts) {
+function titleize(str: string, opts: any) {
   if (opts && opts.strip) {
     return strip(str, opts)
   }
@@ -215,22 +154,13 @@ function titleize(str, opts) {
   if (opts && typeof opts.titleize === 'function') {
     return opts.titleize(str, opts)
   }
-  str = utils.getTitle(str)
+  str = getTitle(str)
   str = str.split(/<\/?[^>]+>/).join('')
   str = str.split(/[ \t]+/).join(' ')
   return str.trim()
 }
 
-/**
- * Optionally strip specified words from heading text (not url)
- *
- * @name  options.strip
- * @param  {String} `str`
- * @param  {String} `opts`
- * @return {String}
- */
-
-function strip(str, opts) {
+function strip(str: string, opts: any) {
   opts = opts || {}
   if (!opts.strip) return str
   if (typeof opts.strip === 'function') {
@@ -245,14 +175,19 @@ function strip(str, opts) {
   return str
 }
 
-/**
- * Expose utils
- */
+function toc(str: string, options?: any) {
+  return new Remarkable().use(generate(options)).render(str)
+}
 
-toc.utils = utils
+// toc.utils = utils;
 toc.bullets = bullets
 toc.linkify = linkify
-toc.slugify = utils.slugify
+toc.slugify = slugify
 toc.titleize = titleize
 toc.plugin = generate
 toc.strip = strip
+toc.insert = insert
+
+export {toc, generate as plugin, linkify, highest, bullets, titleize, strip}
+
+export default toc

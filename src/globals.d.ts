@@ -1,0 +1,8 @@
+declare module 'diacritics-map'
+declare module 'lazy-cache'
+declare module 'util'
+declare module 'mixin-deep'
+declare module 'object.pick'
+declare module 'list-item'
+declare module 'markdown-link'
+declare module 'remarkable'
