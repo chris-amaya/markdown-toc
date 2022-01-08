@@ -1,15 +1,16 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "ES3",
     "lib": ["ESNext"],
     "types": ["node", "jest"],
-    "module": "ESNext",
+    "module": "CommonJS",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true,
     "moduleResolution": "Node",
-    "outDir": "dist"
+    "outDir": "dist",
+    "allowJs": true
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]

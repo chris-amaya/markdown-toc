@@ -1,55 +1,55 @@
-import diacritics from 'diacritics-map'
-import stripColor from 'strip-color'
+import diacritics from 'diacritics-map';
+import stripColor from 'strip-color';
 
 function getTitle(str: string) {
   if (/^\[[^\]]+\]\(/.test(str)) {
-    var m = /^\[([^\]]+)\]/.exec(str)
-    if (m) return m[1]
+    var m = /^\[([^\]]+)\]/.exec(str);
+    if (m) return m[1];
   }
-  return str
+  return str;
 }
 
 function slugify(str: string, options: any) {
-  options = options || {}
-  if (options.slugify === false) return str
+  options = options || {};
+  if (options.slugify === false) return str;
   if (typeof options.slugify === 'function') {
-    return options.slugify(str, options)
+    return options.slugify(str, options);
   }
 
-  str = getTitle(str)
-  str = stripColor(str)
-  str = str.toLowerCase()
+  str = getTitle(str);
+  str = stripColor(str);
+  str = str.toLowerCase();
 
   // `.split()` is often (but not always) faster than `.replace()`
-  str = str.split(' ').join('-')
-  str = str.split(/\t/).join('--')
+  str = str.split(' ').join('-');
+  str = str.split(/\t/).join('--');
   if (options.stripHeadingTags !== false) {
-    str = str.split(/<\/?[^>]+>/).join('')
+    str = str.split(/<\/?[^>]+>/).join('');
   }
-  str = str.split(/[|$&`~=\\\/@+*!?({[\]})<>=.,;:'"^]/).join('')
+  str = str.split(/[|$&`~=\\\/@+*!?({[\]})<>=.,;:'"^]/).join('');
   str = str
     .split(/[。？！，、；：“”【】（）〔〕［］﹃﹄“ ”‘’﹁﹂—…－～《》〈〉「」]/)
-    .join('')
-  str = replaceDiacritics(str)
+    .join('');
+  str = replaceDiacritics(str);
   if (options.num) {
-    str += '-' + options.num
+    str += '-' + options.num;
   }
-  return str
+  return str;
 }
 
 function replaceDiacritics(str: string) {
   return str.replace(/[À-ž]/g, function (ch) {
-    return diacritics[ch] || ch
-  })
+    return diacritics[ch] || ch;
+  });
 }
 
 function detectMatter(str: string) {
   try {
-    const matt = JSON.parse(str)
-    return true
+    const matt = JSON.parse(str);
+    return true;
   } catch (error) {
-    return false
+    return false;
   }
 }
 
-export {getTitle, slugify, replaceDiacritics, stripColor}
+export {getTitle, slugify, replaceDiacritics, stripColor};
